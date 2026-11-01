@@ -1,0 +1,9 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Activity — SecurePay{% endblock %}
+{% block content %}
+<section class="notifications-page">
+  <header class="notifications-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> YOUR UPDATES</p><h1>Activity,<br><em>in context.</em></h1><p>Contract and milestone changes involving you, collected in one place.</p></div>{% if unread_notification_count %}<form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}<button class="outline-button" type="submit">Mark all as read</button></form>{% endif %}</header>
+  {% if notifications %}<div class="notification-list">{% for item in notifications %}<article class="notification-card{% if not item.read_at %} notification-unread{% endif %}"><span class="notification-pin" aria-hidden="true"></span><div class="notification-copy"><div class="notification-title-row"><h2>{{ item.title }}</h2>{% if not item.read_at %}<span class="unread-label">NEW</span>{% endif %}</div><p>{{ item.message }}</p><small>{{ item.created_at|date:'M j, Y · H:i' }} · {{ item.contract.title }}</small></div><form method="post" action="{% url 'notifications:mark_read' notification_id=item.pk %}">{% csrf_token %}<button class="notification-open" type="submit">{% if item.read_at %}Open{% else %}Read & open{% endif %} →</button></form></article>{% endfor %}</div>
+  {% else %}<div class="notifications-empty"><span aria-hidden="true">✳</span><h2>You’re all caught up.</h2><p>New contract and milestone activity will appear here.</p><a class="primary-button" href="{% url 'contracts:contract_list' %}">View contracts</a></div>{% endif %}
+</section>
+{% endblock %}

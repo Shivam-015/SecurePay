@@ -1,0 +1,5 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Verify your email — SecurePay{% endblock %}
+{% block content %}
+<section class="auth-layout auth-utility-page"><div class="auth-panel"><p class="eyebrow">CHECK YOUR INBOX</p><h2>One quick verification.</h2><p class="form-subtitle">If the address can receive SecurePay email, a one-time verification link is on its way. It expires after 24 hours.</p><p class="form-switch">No email yet? Check your spam folder or <a href="{% url 'accounts:resend_verification' %}">request another link</a>.</p></div></section>
+{% endblock %}

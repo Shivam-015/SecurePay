@@ -1,0 +1,261 @@
+{
+  "info": {
+    "name": "SecurePay API",
+    "description": "College-project backend API. Payments are simulated only; no real funds are processed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "verificationToken",
+      "value": ""
+    },
+    {
+      "key": "gigId",
+      "value": "1"
+    },
+    {
+      "key": "contractId",
+      "value": "1"
+    },
+    {
+      "key": "milestoneId",
+      "value": "1"
+    },
+    {
+      "key": "disputeId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"client@example.com\",\n  \"display_name\": \"Demo Client\",\n  \"role\": \"client\",\n  \"password\": \"ChangeThis-Password-123!\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/register/"
+      }
+    },
+    {
+      "name": "Login (JWT)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"client@example.com\",\n  \"password\": \"ChangeThis-Password-123!\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/token/"
+      }
+    },
+    {
+      "name": "List public gigs",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/gigs/"
+      }
+    },
+    {
+      "name": "Current user",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/me/"
+      }
+    },
+    {
+      "name": "Create contract proposal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"gig\": {{gigId}},\n  \"title\": \"Website build\",\n  \"scope\": \"Build the agreed website pages\",\n  \"terms\": \"Demo contract\",\n  \"milestones\": [{\"title\":\"First delivery\",\"amount\":1000,\"due_date\":\"2027-01-15\"}]\n}"
+        },
+        "url": "{{baseUrl}}/contracts/"
+      }
+    },
+    {
+      "name": "My contracts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/contracts/"
+      }
+    },
+    {
+      "name": "Record simulated funding",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/milestones/{{milestoneId}}/fund/"
+      }
+    },
+    {
+      "name": "Submit milestone (freelancer)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"kind\": \"text\",\n  \"content\": \"Demo milestone delivery\"\n}"
+        },
+        "url": "{{baseUrl}}/milestones/{{milestoneId}}/submit/"
+      }
+    },
+    {
+      "name": "Release simulated payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/milestones/{{milestoneId}}/release/"
+      }
+    },
+    {
+      "name": "List invoices",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/invoices/"
+      }
+    },
+    {
+      "name": "My disputes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/disputes/"
+      }
+    },
+    {
+      "name": "My notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/notifications/"
+      }
+    },
+    {
+      "name": "Export verified contract evidence",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "description": "Participant-only JSON export. Verify integrity.status and agreement fingerprint before relying on saved evidence.",
+        "url": "{{baseUrl}}/contracts/{{contractId}}/evidence/"
+      }
+    },
+    {
+      "name": "Verify email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/verify-email/"
+      }
+    },
+    {
+      "name": "Resend email verification",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"client@example.com\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/verify-email/resend/"
+      }
+    }
+  ]
+}

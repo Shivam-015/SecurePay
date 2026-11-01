@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: securepay_ci
+      POSTGRES_USER: securepay_ci
+      POSTGRES_PASSWORD: securepay-ci-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U securepay_ci -d securepay_ci"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ci
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DJANGO_SECRET_KEY: securepay-ci-only-key-not-for-deployment-0123456789-ABCDEFG
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_ENGINE: postgresql
+      DB_NAME: securepay_ci
+      DB_USER: securepay_ci
+      DB_PASSWORD: securepay-ci-only
+      DB_HOST: db
+      DB_PORT: "5432"
+      CELERY_BROKER_URL: redis://localhost:6379/0
+    command:
+      - sh
+      - -c
+      - python manage.py check && python manage.py makemigrations --check --dry-run && python manage.py test
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ci
+
+networks:
+  ci:
+    internal: true

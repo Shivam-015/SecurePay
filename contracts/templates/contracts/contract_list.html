@@ -1,0 +1,13 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Your contracts — SecurePay{% endblock %}
+{% block content %}
+<section class="contracts-page">
+  <div class="contracts-page-heading"><p class="eyebrow"><span class="eyebrow-dot"></span> YOUR AGREEMENTS</p><h1>Work, <em>in writing.</em></h1><p>Keep every proposal and agreed project close at hand.</p></div>
+  {% if contracts %}<div class="contract-list">{% for contract in contracts %}
+    <a class="contract-list-card" href="{% url 'contracts:contract_detail' pk=contract.pk %}">
+      <div class="contract-list-main"><span class="contract-list-status status-{{ contract.status }}">{{ contract.get_status_display }}</span><h2>{{ contract.title }}</h2><p>{% if request.user == contract.client %}With {{ contract.freelancer.display_name }}{% else %}With {{ contract.client.display_name }}{% endif %}{% if contract.gig %}<span> · {{ contract.gig.category.name }}</span>{% endif %}</p></div>
+      <div class="contract-list-meta"><strong>{{ contract.currency }} {{ contract.total_amount|floatformat:2 }}</strong><small>{{ contract.milestones.count }} planned milestone{{ contract.milestones.count|pluralize }}</small></div><span class="contract-list-arrow">↗</span>
+    </a>
+  {% endfor %}</div>{% else %}<div class="contracts-empty"><span>✳</span><h2>No proposals yet.</h2><p>When you start a project from a service listing, the proposal and its milestone plan will live here.</p><a class="primary-button" href="{% url 'marketplace:gig_list' %}">Explore services <span>↗</span></a></div>{% endif %}
+</section>
+{% endblock %}

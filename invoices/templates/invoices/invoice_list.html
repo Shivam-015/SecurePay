@@ -1,0 +1,7 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Invoices — SecurePay{% endblock %}
+{% block content %}
+<section class="invoices-page"><header class="invoices-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> YOUR RECORDS</p><h1>Invoices,<br><em>clearly noted.</em></h1><p>These are printable records for the demo milestone workflow. They are not tax invoices or proof of real payment.</p></div></header>
+  {% if invoices %}<div class="invoice-list">{% for invoice in invoices %}<a class="invoice-row" href="{% url 'invoices:invoice_detail' number=invoice.number %}"><span class="invoice-mark">↗</span><span><b>{{ invoice.number }}</b><small>{{ invoice.contract.title }} · {{ invoice.issued_at|date:'M j, Y' }}</small></span><strong>{{ invoice.currency }} {{ invoice.amount|floatformat:2 }}</strong></a>{% endfor %}</div>{% else %}<div class="notifications-empty"><span>✳</span><h2>No invoices yet.</h2><p>A demo invoice will appear after a client approves and marks a milestone released.</p><a class="primary-button" href="{% url 'contracts:contract_list' %}">View contracts</a></div>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Create an account — SecurePay{% endblock %}
+{% block content %}
+<section class="auth-layout signup-layout">
+  <div class="auth-aside"><p class="eyebrow"><span class="eyebrow-dot"></span> WORK, WITH A LITTLE MORE TRUST</p><h1>Let's make<br>work feel<br><em>clearer.</em></h1><p>Tell us how you work. You can collaborate with clients or freelancers on projects built around clear milestones.</p></div>
+  <div class="auth-panel"><p class="eyebrow">CREATE YOUR ACCOUNT</p><h2>A good place to begin.</h2><p class="form-subtitle">A few details, then you're in.</p>
+    <form method="post" class="account-form" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="field"><label for="id_display_name">Your name</label>{{ form.display_name }}{% for error in form.display_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      <div class="field"><label for="id_email">Email address</label>{{ form.email }}{% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      <fieldset class="role-field"><legend>How will you use SecurePay?</legend><div class="role-options">
+        {% for radio in form.role %}<label class="role-option" for="{{ radio.id_for_label }}">{{ radio.tag }}<span class="role-copy"><b>{{ radio.choice_label }}</b><small>{% if radio.choice_value == 'client' %}I want to hire for a project{% else %}I offer freelance services{% endif %}</small></span><span class="role-arrow">↗</span></label>{% endfor %}
+      </div>{% for error in form.role.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</fieldset>
+      <div class="field"><label for="id_password1">Create a password</label>{{ form.password1 }}<small class="field-hint">Use 8 or more characters. Avoid common or easily guessed passwords.</small>{% for error in form.password1.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      <div class="field"><label for="id_password2">Confirm password</label>{{ form.password2 }}{% for error in form.password2.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      <button class="primary-button form-submit" type="submit">Create account <span aria-hidden="true">↗</span></button>
+      <p class="legal-note">We’ll send a one-time link to verify your email before you can sign in.</p>
+    </form>
+    <p class="form-switch">Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a> · <a href="{% url 'accounts:resend_verification' %}">Resend verification</a></p>
+  </div>
+</section>
+{% endblock %}

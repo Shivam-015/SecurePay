@@ -1,0 +1,5 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Resend verification — SecurePay{% endblock %}
+{% block content %}
+<section class="auth-layout auth-utility-page"><div class="auth-panel"><p class="eyebrow">EMAIL VERIFICATION</p><h2>Request a fresh link.</h2><p class="form-subtitle">Enter the address used to sign up. We’ll show the same confirmation either way.</p><form method="post" class="account-form">{% csrf_token %}<div class="field"><label for="id_email">Email address</label>{{ form.email }}{% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div><button class="primary-button form-submit" type="submit">Send verification link</button></form></div></section>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Sign in — SecurePay{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-aside"><p class="eyebrow"><span class="eyebrow-dot"></span> GOOD TO HAVE YOU BACK</p><h1>Pick up<br>where you<br><em>left off.</em></h1><p>Your agreements, milestones, and conversations are right where you left them.</p></div>
+  <div class="auth-panel"><p class="eyebrow">YOUR SECUREPAY ACCOUNT</p><h2>Welcome back.</h2><p class="form-subtitle">Sign in to continue to your workspace.</p>
+    <form method="post" class="account-form" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="field"><label for="id_username">Email address</label>{{ form.username }}{% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      <div class="field"><label for="id_password">Password</label>{{ form.password }}{% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}<a class="form-help-link" href="{% url 'accounts:password_reset' %}">Forgot your password?</a></div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="primary-button form-submit" type="submit">Sign in <span aria-hidden="true">↗</span></button>
+    </form>
+    <p class="form-switch">New to SecurePay? <a href="{% url 'accounts:signup' %}">Create an account</a> · <a href="{% url 'accounts:resend_verification' %}">Verify email</a></p>
+    <p class="form-security"><span>●</span> Your account details stay private.</p>
+  </div>
+</section>
+{% endblock %}

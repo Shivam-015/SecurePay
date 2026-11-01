@@ -1,0 +1,5 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Dispute queue — SecurePay{% endblock %}
+{% block content %}
+<section class="risk-page"><header class="risk-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> STAFF WORKSPACE</p><h1>Dispute <em>queue.</em></h1><p>Review notes from both contract participants and record a demo-only outcome.</p></div></header>{% if disputes %}<div class="dispute-queue-list">{% for dispute in disputes %}<a href="{% url 'disputes:detail' dispute_id=dispute.pk %}"><span class="contract-list-status status-{{ dispute.status }}">{{ dispute.get_status_display }}</span><b>{{ dispute.contract.title }} · {{ dispute.milestone.title }}</b><small>{{ dispute.get_reason_display }} · {{ dispute.opened_by.display_name }} · {{ dispute.created_at|date:'M j, Y' }}</small><span>Review case →</span></a>{% endfor %}</div>{% else %}<div class="notifications-empty"><span>✳</span><h2>No open disputes.</h2><p>New cases will appear here for staff review.</p></div>{% endif %}</section>
+{% endblock %}

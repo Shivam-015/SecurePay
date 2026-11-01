@@ -1,0 +1,26 @@
+{% extends 'accounts/base.html' %}
+{% block title %}SecurePay — work, with trust{% endblock %}
+{% block content %}
+<section class="hero hero-editorial">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="eyebrow-dot"></span> INDEPENDENT WORK, CLEARLY AGREED</p>
+    <h1>Good work.<br><em>Clear terms.</em><br>Fair payments.</h1>
+    <p class="hero-intro">A calmer place to agree on the work, break it into milestones, and keep every decision in view.</p>
+    <div class="hero-actions">
+      <a class="primary-button" href="{% url 'marketplace:gig_list' %}">Explore services <span aria-hidden="true">↗</span></a>
+      <a class="text-button" href="{% url 'accounts:signup' %}">Working on a project? <span>Join SecurePay</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="intro-strip"><span class="strip-label">BUILT FOR INDEPENDENT WORK</span><div class="strip-items"><span>Design</span><i></i><span>Writing</span><i></i><span>Development</span></div></section>
+
+<section class="principles">
+  <div><p class="eyebrow">A little more certainty</p><h2>Good work needs<br><em>room to happen.</em></h2></div>
+  <div class="principle-card"><span class="principle-index">01 / AGREE</span><h3>Start on the same page.</h3><p>Make the scope, timeline, and payment terms clear before anyone gets to work.</p></div>
+  <div class="principle-card"><span class="principle-index">02 / MAKE</span><h3>Move one milestone at a time.</h3><p>Keep delivery and feedback tied to manageable, well-defined pieces of work.</p></div>
+  <div class="principle-card"><span class="principle-index">03 / VERIFY</span><h3>Keep a history you can check.</h3><p>SecurePay fingerprints the agreed scope and milestone plan, then links project events into a verifiable history you can download.</p></div>
+</section>
+
+<section class="closing-band"><div><p class="eyebrow">The first step is a conversation</p><h2>Make the work.<br><em>Keep the trust.</em></h2></div><a class="light-button" href="{% url 'accounts:signup' %}">Create your account <span aria-hidden="true">↗</span></a></section>
+{% endblock %}

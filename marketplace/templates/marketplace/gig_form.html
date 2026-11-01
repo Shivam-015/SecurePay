@@ -1,0 +1,17 @@
+{% extends 'accounts/base.html' %}
+{% block title %}{% if is_edit %}Edit service{% else %}Offer a service{% endif %} — SecurePay{% endblock %}
+{% block content %}
+<section class="gig-form-page">
+  <a class="back-link" href="{% if is_edit %}{% url 'marketplace:gig_detail' slug=gig.slug %}{% else %}{% url 'marketplace:gig_list' %}{% endif %}">← Back</a>
+  <div class="gig-form-heading"><p class="eyebrow"><span class="eyebrow-dot"></span> FREELANCER MARKETPLACE</p><h1>{% if is_edit %}Shape your<br><em>service listing.</em>{% else %}Put your skills<br><em>out there.</em>{% endif %}</h1><p>Give clients a clear picture of what you do, what it costs to start, and when they can expect delivery.</p></div>
+  <form method="post" class="gig-edit-form">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="form-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="field"><label for="id_title">Service title</label>{{ form.title }}{% for error in form.title.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+    <div class="field"><label for="id_category">Category</label>{{ form.category }}{% for error in form.category.errors %}<small class="field-error">{{ error }}</small>{% endfor %}{% if not form.fields.category.queryset %}<small class="field-hint">No categories are available yet. An administrator needs to add categories in Django Admin first.</small>{% endif %}</div>
+    <div class="field"><label for="id_description">What does this service include?</label>{{ form.description }}<small class="field-hint">Be specific about the deliverable and what is outside the scope.</small>{% for error in form.description.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+    <div class="price-days-row"><div class="field"><label for="id_starting_price">Starting price</label><div class="currency-input">{{ form.currency }}{{ form.starting_price }}</div>{% for error in form.starting_price.errors %}<small class="field-error">{{ error }}</small>{% endfor %}{% for error in form.currency.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div><div class="field"><label for="id_delivery_days">Estimated delivery (days)</label>{{ form.delivery_days }}{% for error in form.delivery_days.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div></div>
+    <div class="field"><label for="id_status">Listing visibility</label>{{ form.status }}{% if form.status.help_text %}<small class="field-hint">{{ form.status.help_text }}</small>{% endif %}</div>
+    <div class="gig-form-actions"><button class="primary-button" type="submit">{% if is_edit %}Save changes{% else %}Publish service{% endif %} <span>↗</span></button><a class="text-button" href="{% if is_edit %}{% url 'marketplace:gig_detail' slug=gig.slug %}{% else %}{% url 'marketplace:gig_list' %}{% endif %}">Cancel</a></div>
+  </form>
+</section>
+{% endblock %}

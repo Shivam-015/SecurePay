@@ -1,0 +1,39 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block title %}Propose a contract — SecurePay{% endblock %}
+{% block extra_head %}<script src="{% static 'js/contract_form.js' %}" defer></script>{% endblock %}
+{% block content %}
+<section class="contract-create-page">
+  <a class="back-link" href="{% url 'marketplace:gig_detail' slug=gig.slug %}">← Back to service</a>
+  <div class="contract-create-layout">
+    <header class="contract-create-heading"><p class="eyebrow"><span class="eyebrow-dot"></span> START WITH A CLEAR AGREEMENT</p><h1>Put the plan<br><em>in writing.</em></h1><p>Send {{ gig.freelancer.display_name }} a proposal with a clear scope and a milestone plan. They’ll review it before anything is agreed.</p>
+      <div class="recipient-card"><span class="avatar-mark large-avatar">{{ gig.freelancer.display_name|first|upper }}</span><span><small>PROPOSAL FOR</small><b>{{ gig.freelancer.display_name }}</b><small>{{ gig.title }}</small></span></div>
+    </header>
+    <form method="post" class="contract-form">{% csrf_token %}
+      {% if contract_form.non_field_errors %}<div class="form-alert" role="alert">{{ contract_form.non_field_errors }}</div>{% endif %}
+      <div class="contract-form-section"><span class="form-section-index">01</span><div class="form-section-content"><h2>Project basics</h2><p>Describe the work you want done and any extra terms to discuss.</p>
+        <div class="field"><label for="id_title">Project name</label>{{ contract_form.title }}{% for error in contract_form.title.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+        <div class="field"><label for="id_scope">Scope of work</label>{{ contract_form.scope }}<small class="field-hint">Be clear about the outcome and what will count as complete.</small>{% for error in contract_form.scope.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+        <div class="field"><label for="id_terms">Additional terms <span class="optional-label">OPTIONAL</span></label>{{ contract_form.terms }}{% for error in contract_form.terms.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+      </div></div>
+      <div class="contract-form-section"><span class="form-section-index">02</span><div class="form-section-content"><h2>Break it into milestones</h2><p>Each milestone needs a deliverable, amount, and target date. Amounts add up to the total agreement.</p>
+        {{ milestone_formset.management_form }}
+        {% if milestone_formset.non_form_errors %}<div class="form-alert" role="alert">{{ milestone_formset.non_form_errors }}</div>{% endif %}
+        <div class="milestone-editor-list" data-milestone-list data-prefix="{{ milestone_formset.prefix }}" data-max="8">
+          {% for form in milestone_formset %}
+          <fieldset class="milestone-editor" data-milestone-row><legend>Milestone <span data-milestone-number>{{ forloop.counter|stringformat:'02d' }}</span><button class="remove-milestone" type="button" data-remove-milestone aria-label="Remove milestone {{ forloop.counter }}">Remove</button></legend>
+            <div class="field"><label for="{{ form.title.id_for_label }}">Milestone name</label>{{ form.title }}{% for error in form.title.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+            <div class="field"><label for="{{ form.description.id_for_label }}">Deliverable details</label>{{ form.description }}{% for error in form.description.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+            <div class="milestone-meta-fields"><div class="field"><label for="{{ form.amount.id_for_label }}">Amount ({{ gig.currency }})</label>{{ form.amount }}{% for error in form.amount.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div><div class="field"><label for="{{ form.due_date.id_for_label }}">Target date</label>{{ form.due_date }}{% for error in form.due_date.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div></div>
+          </fieldset>
+          {% endfor %}
+        </div>
+        <template data-empty-milestone>{{ milestone_formset.empty_form.as_p }}</template>
+        <button class="add-milestone-button" type="button" data-add-milestone>＋ Add another milestone</button>
+        <div class="contract-total"><span>PROPOSED TOTAL <small>({{ gig.currency }})</small></span><strong data-contract-total>0.00</strong></div>
+      </div></div>
+      <div class="contract-submit-row"><button class="primary-button" type="submit">Send proposal <span aria-hidden="true">↗</span></button><p>The proposal stays open until the freelancer accepts, declines, or you withdraw it.</p></div>
+    </form>
+  </div>
+</section>
+{% endblock %}

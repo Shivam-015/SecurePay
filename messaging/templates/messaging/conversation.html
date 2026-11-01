@@ -1,0 +1,11 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Messages · {{ contract.title }} — SecurePay{% endblock %}
+{% block content %}
+<section class="conversation-page">
+  <a class="back-link" href="{% url 'messaging:inbox' %}">← All conversations</a>
+  <header class="conversation-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> CONTRACT CONVERSATION</p><h1>{{ contract.title }}</h1><p>With {% if request.user == contract.client %}{{ contract.freelancer.display_name }}{% else %}{{ contract.client.display_name }}{% endif %}</p></div><a class="outline-button" href="{% url 'contracts:contract_detail' pk=contract.pk %}">View contract ↗</a></header>
+  <div class="conversation-shell"><div class="conversation-transcript" aria-live="polite">
+    {% for item in conversation_messages %}<article class="chat-message{% if item.sender_id == request.user.pk %} chat-message-own{% endif %}"><div class="chat-message-meta"><b>{% if item.sender_id == request.user.pk %}You{% else %}{{ item.sender.display_name }}{% endif %}</b><time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:'M j · H:i' }}</time></div><p>{{ item.body|linebreaksbr }}</p></article>{% empty %}<div class="conversation-first-message"><span>✳</span><h2>Start with a clear note.</h2><p>Keep project questions and decisions together with this contract.</p></div>{% endfor %}
+  </div><form method="post" class="chat-compose">{% csrf_token %}{% if form.body.errors %}<small class="field-error">{{ form.body.errors.0 }}</small>{% endif %}<label class="visually-hidden" for="{{ form.body.id_for_label }}">Your message</label>{{ form.body }}<div class="chat-compose-footer"><small>Messages are visible only to the two contract participants.</small><button class="primary-button" type="submit">Send message →</button></div></form></div>
+</section>
+{% endblock %}

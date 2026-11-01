@@ -1,0 +1,5 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Confirm your email — SecurePay{% endblock %}
+{% block content %}
+<section class="auth-layout auth-utility-page"><div class="auth-panel"><p class="eyebrow">EMAIL VERIFICATION</p><h2>Confirm this email address.</h2><p class="form-subtitle">Submit to activate your account. This step prevents link scanners from activating it just by opening the email.</p><form method="post">{% csrf_token %}<button class="primary-button" type="submit">Verify email</button></form></div></section>
+{% endblock %}
