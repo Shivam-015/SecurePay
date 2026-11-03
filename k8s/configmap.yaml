@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: securepay-config
+  namespace: securepay
+data:
+  DJANGO_DEBUG: "false"
+  DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,securepay-web"
+  DJANGO_SECURE_SSL_REDIRECT: "false"
+  DJANGO_SECURE_COOKIES: "false"
+  DJANGO_TIME_ZONE: "Asia/Kolkata"
+  SECURE_HSTS_SECONDS: "0"
+  DB_ENGINE: "postgresql"
+  DB_HOST: "securepay-db"
+  DB_PORT: "5432"
+  CELERY_BROKER_URL: "redis://securepay-redis:6379/0"
+  DJANGO_EMAIL_BACKEND: "django.core.mail.backends.console.EmailBackend"
+  DEADLINE_EMAILS: "false"

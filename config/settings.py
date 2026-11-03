@@ -176,8 +176,11 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'same-origin'
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # Production defaults stay secure; local Kubernetes demos can override this
+    # while accessed over HTTP on localhost.
+    secure_cookies = env_bool('DJANGO_SECURE_COOKIES', True)
+    SESSION_COOKIE_SECURE = secure_cookies
+    CSRF_COOKIE_SECURE = secure_cookies
     if SECRET_KEY == 'dev-only-change-before-deployment' or len(SECRET_KEY) < 50:
         raise RuntimeError('Set a strong DJANGO_SECRET_KEY (at least 50 characters) before running with DJANGO_DEBUG=false.')
 
