@@ -20,24 +20,33 @@ Compose starts PostgreSQL, Redis, Django/Gunicorn, a Celery worker, and Celery b
 
 ## Jenkins continuous integration
 
-The `Jenkinsfile` runs the checks and test suite against a temporary PostgreSQL service, builds an image tagged with the Jenkins build number, and deploys it to the kind cluster selected by the Jenkins agent's current kubeconfig context. It does not publish images to a registry. The Jenkins Linux agent needs Git, Docker Engine, Docker Compose, `kind`, `kubectl`, and access to the intended kind context. No other project's cluster name is hardcoded in SecurePay. The one-time `securepay-secrets` Kubernetes Secret must already exist in the `securepay` namespace. Run the same CI checks locally with `docker compose -f docker-compose.ci.yml up --build --abort-on-container-exit --exit-code-from tests tests`, then clean up with `docker compose -f docker-compose.ci.yml down --remove-orphans`.
+The `Jenkinsfile` runs checks against temporary PostgreSQL, builds an image tagged with the Jenkins build number, and deploys only to the dedicated `securepay` kind cluster. It explicitly switches to `kind-securepay` and stops if that cluster is absent; it cannot silently deploy SecurePay into InfraFlow's cluster. It does not publish images to a registry. The Jenkins Linux agent needs Git, Docker Engine, Docker Compose, `kind`, `kubectl`, access to the `securepay` cluster, and the one-time `securepay-secrets` Kubernetes Secret in namespace `securepay`. After creating the new cluster, refresh Jenkins' kubeconfig with that context. Run checks locally with `docker compose -f docker-compose.ci.yml up --build --abort-on-container-exit --exit-code-from tests tests`, then clean up with `docker compose -f docker-compose.ci.yml down --remove-orphans`.
 
 ## Local Kubernetes deployment (kind in Ubuntu on WSL 2)
 
-The `k8s/` manifests run the web app, PostgreSQL, Redis, Celery worker, and Celery beat in the currently selected kind cluster, isolated in the `securepay` namespace. This lets SecurePay share the cluster without sharing its app resources. Payments remain simulated; no payment-provider credentials are needed. This is a local college-demo deployment, not a public production setup. It uses HTTP on localhost, so the Kubernetes ConfigMap explicitly disables HTTPS redirects and secure browser cookies for this local-only profile. Django remains in non-debug mode with a strong secret.
+The `k8s/` manifests run the web app, PostgreSQL, Redis, Celery worker, and Celery beat in a dedicated kind cluster named `securepay`, under namespace `securepay`. Keep InfraFlow in its existing cluster. Payments are simulated; no payment-provider credentials are needed. This is a local college-demo deployment, not a public production setup. It uses HTTP on localhost, so the Kubernetes ConfigMap explicitly disables HTTPS redirects and secure browser cookies for this local-only profile. Django remains in non-debug mode with a strong secret.
 
-### 1. Select and check the existing kind cluster
+### 1. Create and select the dedicated cluster
 
-In Ubuntu WSL, select the existing kind context you want to use. SecurePay's resources stay in their own namespace:
+In Ubuntu WSL, first confirm the context, then remove only SecurePay's old namespace from the shared cluster. This deletes SecurePay demo data and its PVCs; it does not delete or modify InfraFlow's namespace or cluster:
 
 ```bash
+kubectl config use-context kind-infraflow
 kubectl config current-context
-kubectl get nodes
-kind get clusters
-kubectl get storageclass
+kubectl -n securepay get pods,pvc
+kubectl delete namespace securepay
 ```
 
-Confirm the current context is the intended kind cluster and that a default storage class is listed before continuing. The database and media PVCs use that default class.
+Run these individually and stop if the current context is not `kind-infraflow`. Wait for namespace deletion to finish. Then create a new SecurePay cluster as a separate command; if this fails, stop and diagnose before applying anything:
+
+```bash
+kind create cluster --name securepay --image kindest/node:v1.36.1 --wait 5m
+kubectl config use-context kind-securepay
+kubectl config current-context
+kubectl get nodes
+```
+
+The expected context is `kind-securepay`. kind has already installed its local-path provisioner and the `standard` StorageClass in this cluster. SecurePay PVCs explicitly use `standard`.
 
 ### 2. Build the app image and load it into kind
 
@@ -45,12 +54,10 @@ From the SecurePay repository root in WSL:
 
 ```bash
 docker build -t securepay:dev .
-KIND_CLUSTER_NAME="$(kubectl config current-context)"
-KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME#kind-}"
-kind load docker-image securepay:dev --name "$KIND_CLUSTER_NAME"
+kind load docker-image securepay:dev --name securepay
 ```
 
-This loads the image into the selected kind cluster without publishing it to Docker Hub or another registry. The manifests use `IfNotPresent` so Kubernetes uses the loaded image.
+This loads the image into the dedicated SecurePay cluster without publishing it to Docker Hub or another registry. The manifests use `IfNotPresent` so Kubernetes uses the loaded image.
 
 ### 3. Create the namespace and local-only credentials
 
@@ -88,9 +95,8 @@ For a later image rebuild, delete the completed migration job (`kubectl -n secur
 
 ```bash
 docker build -t securepay:dev .
-KIND_CLUSTER_NAME="$(kubectl config current-context)"
-KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME#kind-}"
-kind load docker-image securepay:dev --name "$KIND_CLUSTER_NAME"
+kubectl config use-context kind-securepay
+kind load docker-image securepay:dev --name securepay
 kubectl apply -f k8s/migration-job.yaml
 kubectl -n securepay wait --for=condition=complete job/securepay-migrate --timeout=300s
 kubectl apply -f k8s/app.yaml

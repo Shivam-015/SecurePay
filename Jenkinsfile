@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        KIND_CLUSTER_NAME = 'securepay'
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -31,13 +35,12 @@ pipeline {
                 sh '''
                     set -eu
                     APP_IMAGE="securepay:${BUILD_NUMBER}"
-                    CURRENT_CONTEXT="$(kubectl config current-context)"
-                    case "$CURRENT_CONTEXT" in
-                        kind-*) KIND_CLUSTER_NAME="${CURRENT_CONTEXT#kind-}" ;;
-                        *) echo "Current kubectl context '$CURRENT_CONTEXT' is not a kind context." >&2; exit 1 ;;
-                    esac
-
-                    kind get clusters | grep -Fx "$KIND_CLUSTER_NAME" >/dev/null
+                    kind get clusters | grep -Fx "$KIND_CLUSTER_NAME" >/dev/null || {
+                        echo "Required kind cluster '$KIND_CLUSTER_NAME' does not exist." >&2
+                        exit 1
+                    }
+                    kubectl config use-context "kind-${KIND_CLUSTER_NAME}"
+                    test "$(kubectl config current-context)" = "kind-${KIND_CLUSTER_NAME}"
                     docker image inspect "$APP_IMAGE" >/dev/null
                     kind load docker-image "$APP_IMAGE" --name "$KIND_CLUSTER_NAME"
 
