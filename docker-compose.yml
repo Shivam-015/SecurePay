@@ -67,7 +67,7 @@ services:
     env_file: .env
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env}
-    command: celery -A config beat --loglevel=info
+    command: celery -A config beat --loglevel=info --schedule=/tmp/celerybeat-schedule
     depends_on:
       db:
         condition: service_healthy
