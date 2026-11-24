@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: securepay_ci
+          POSTGRES_USER: securepay_ci
+          POSTGRES_PASSWORD: securepay-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U securepay_ci -d securepay_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DJANGO_SECRET_KEY: securepay-ci-only-key-not-for-deployment-0123456789-ABCDEFG
+      DJANGO_DEBUG: "true"
+      DB_ENGINE: postgresql
+      DB_NAME: securepay_ci
+      DB_USER: securepay_ci
+      DB_PASSWORD: securepay-ci-only
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      CELERY_BROKER_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py test
