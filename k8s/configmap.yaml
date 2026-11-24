@@ -16,3 +16,4 @@ data:
   CELERY_BROKER_URL: "redis://securepay-redis:6379/0"
   DJANGO_EMAIL_BACKEND: "django.core.mail.backends.console.EmailBackend"
   DEADLINE_EMAILS: "false"
+  REQUIRE_EMAIL_VERIFICATION: "false"

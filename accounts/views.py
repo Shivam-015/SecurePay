@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
@@ -40,11 +41,14 @@ def signup(request):
     form = SignUpForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
-        user.is_active = False
+        user.is_active = not settings.REQUIRE_EMAIL_VERIFICATION
         user.save()
         form.save_m2m()
-        send_email_verification(user=user, request=request)
-        return redirect('accounts:verification_sent')
+        if settings.REQUIRE_EMAIL_VERIFICATION:
+            send_email_verification(user=user, request=request)
+            return redirect('accounts:verification_sent')
+        messages.success(request, 'Your account is ready. You can sign in now.')
+        return redirect('accounts:login')
     return render(request, 'accounts/signup.html', {'form': form})
 
 

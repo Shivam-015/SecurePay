@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -38,8 +39,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = User.objects.create_user(password=password, is_active=False, **validated_data)
-        send_email_verification(user=user, request=self.context['request'])
+        require_verification = settings.REQUIRE_EMAIL_VERIFICATION
+        user = User.objects.create_user(password=password, is_active=not require_verification, **validated_data)
+        if require_verification:
+            send_email_verification(user=user, request=self.context['request'])
         return user
 
 
