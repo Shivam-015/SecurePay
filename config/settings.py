@@ -33,6 +33,15 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-change-before-deploym
 DEBUG = env_bool('DJANGO_DEBUG', True)
 
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+
+# Render sets RENDER_EXTERNAL_HOSTNAME (for example securepay.onrender.com).
+# Trust it automatically so the public URL works without manual host settings.
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if RENDER_EXTERNAL_HOSTNAME:
+    if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 
 # Application definition
@@ -176,6 +185,8 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'same-origin'
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)
+    # Health checks from the platform arrive over plain HTTP inside the network.
+    SECURE_REDIRECT_EXEMPT = [r'^healthz/$']
     # Production defaults stay secure; local Kubernetes demos can override this
     # while accessed over HTTP on localhost.
     secure_cookies = env_bool('DJANGO_SECURE_COOKIES', True)

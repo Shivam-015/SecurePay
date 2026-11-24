@@ -1,0 +1,63 @@
+# Render Blueprint for SecurePay (demo). Create it in Render with
+# New > Blueprint and select the GitHub repository that contains this file.
+#
+# Deploys automatically on every push to the branch below, but only after the
+# GitHub Actions CI check passes (autoDeployTrigger: checksPass).
+
+services:
+  - type: web
+    name: securepay
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerCommand: sh scripts/render_start.sh
+    branch: master
+    autoDeployTrigger: checksPass
+    healthCheckPath: /healthz/
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "false"
+      # Generate with: openssl rand -hex 48  (at least 50 characters is required)
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: securepay-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: keyvalue
+          name: securepay-redis
+          property: connectionString
+      - key: DJANGO_TIME_ZONE
+        value: Asia/Kolkata
+      - key: DJANGO_EMAIL_BACKEND
+        value: django.core.mail.backends.console.EmailBackend
+      - key: DEADLINE_EMAILS
+        value: "false"
+      # Short HSTS while testing; raise it once the site is final.
+      - key: SECURE_HSTS_SECONDS
+        value: "3600"
+      - key: RUN_CELERY
+        value: "true"
+      # One-time setup. Set these in the Render dashboard if you want them.
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_DISPLAY_NAME
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: SEED_DEMO
+        value: "false"
+
+  - type: keyvalue
+    name: securepay-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+databases:
+  - name: securepay-db
+    plan: free
+    databaseName: securepay
+    user: securepay

@@ -261,6 +261,12 @@ kubectl -n securepay describe pvc <pvc-name>
 - `kubectl` points to the wrong cluster: stop and explicitly select `kind-securepay` before any SecurePay operation.
 - API server refuses connections during cluster creation: check `free -h` and `docker stats --no-stream`; avoid running both high-load clusters concurrently.
 
+## Public deployment on Render (demo)
+
+`render.yaml` is a Render Blueprint: one Docker web service (gunicorn, plus an embedded Celery worker and beat when `RUN_CELERY=true`), a free Postgres database and a free Key Value (Redis) instance. `scripts/render_start.sh` runs migrations, `collectstatic`, an optional first superuser, optional demo seeding (`SEED_DEMO=true`, then switch it off), then gunicorn on `$PORT`. `config/settings.py` trusts `RENDER_EXTERNAL_HOSTNAME` automatically for allowed hosts and CSRF.
+
+Automation: `.github/workflows/ci.yml` runs checks and tests on PostgreSQL for every push and pull request; Render auto-deploys the `master` branch only after those checks pass (`autoDeployTrigger: checksPass`). Jenkins remains the separate local kind pipeline. Secrets (`DJANGO_SECRET_KEY`, superuser email/password) are entered in the Render dashboard, never committed. On the free plan, uploaded files live on ephemeral disk and are lost on redeploy, and the free database has a time limit; check Render's current free-tier terms.
+
 ## Safe ZIP packaging
 
 Include source, migration files, static/templates, `requirements.txt`, Docker/Compose files, `Jenkinsfile`, `k8s/`, Postman collection, README and this guide. Exclude secrets and machine/local state:
