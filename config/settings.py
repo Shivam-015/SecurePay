@@ -205,6 +205,9 @@ EMAIL_BACKEND = os.environ.get(
 )
 DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'SecurePay <no-reply@localhost>')
 DEADLINE_EMAILS = os.environ.get('DEADLINE_EMAILS', 'false').lower() == 'true'
+# When false, new accounts are active immediately and no verification email is sent.
+# Keep true wherever real email delivery is configured.
+REQUIRE_EMAIL_VERIFICATION = env_bool('REQUIRE_EMAIL_VERIFICATION', True)
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
 CELERY_TIMEZONE = os.environ.get('CELERY_TIMEZONE', TIME_ZONE)
 CELERY_TASK_IGNORE_RESULT = True

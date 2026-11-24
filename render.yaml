@@ -35,6 +35,9 @@ services:
         value: django.core.mail.backends.console.EmailBackend
       - key: DEADLINE_EMAILS
         value: "false"
+      # No mail provider is configured, so sign-up activates accounts immediately.
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: "false"
       # Short HSTS while testing; raise it once the site is final.
       - key: SECURE_HSTS_SECONDS
         value: "3600"

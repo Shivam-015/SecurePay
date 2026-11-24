@@ -14,6 +14,12 @@ if [ -n "${DJANGO_SUPERUSER_PASSWORD:-}" ] && [ -n "${DJANGO_SUPERUSER_EMAIL:-}"
   python manage.py createsuperuser --noinput || echo "Superuser already exists or could not be created; continuing."
 fi
 
+# Optional: activate one account that registered while email verification was required.
+# Set ACTIVATE_EMAIL=you@example.com in the Render dashboard, redeploy once, then remove it.
+if [ -n "${ACTIVATE_EMAIL:-}" ]; then
+  python manage.py shell -c "import os; from django.contrib.auth import get_user_model as g; print('activated:', g().objects.filter(email__iexact=os.environ['ACTIVATE_EMAIL']).update(is_active=True))" || true
+fi
+
 # Optional demo data (idempotent). Set SEED_DEMO=true for the first deploy, then remove it.
 if [ "${SEED_DEMO:-false}" = "true" ]; then
   python manage.py shell < scripts/seed_demo.py || echo "Demo seed failed; continuing."
